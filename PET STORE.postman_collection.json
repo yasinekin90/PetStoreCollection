@@ -1,0 +1,425 @@
+{
+	"info": {
+		"_postman_id": "44c00c5c-d88a-49b8-bfb8-af05ebbc0940",
+		"name": "PET STORE",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23181470"
+	},
+	"item": [
+		{
+			"name": "CREATE A PET",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var textArray = [\r",
+							"    'available',\r",
+							"    'sold',\r",
+							"    'pending'\r",
+							"];\r",
+							"\r",
+							"var randomNumber = Math.floor(Math.random()*textArray.length);\r",
+							"pm.collectionVariables.set(\"statusPet\",textArray[randomNumber]);\r",
+							"\r",
+							"pm.globals.set(\"petStoreUrl\",\"https://petstore.swagger.io/v2/pet\");\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"var jsonData=JSON.stringify(responseBody);\r",
+							"\r",
+							" \r",
+							"pm.collectionVariables.set(\"petID\",jsonData.substring(9,28));\r",
+							"pm.test(\"Successful POST request\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Content-Type header is application/json \", function () {\r",
+							"        pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"Response time is less than 670ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(670);\r",
+							"});\r",
+							"\r",
+							"//assertion of response body\r",
+							" const jsonData1 = pm.response.json();\r",
+							"pm.test(\"JsonBody validation\", ()=> {\r",
+							"   \r",
+							"     pm.expect(jsonData1).to.be.an(\"object\");\r",
+							"    pm.expect(jsonData1.category.name).to.be.a(\"string\");\r",
+							"    pm.expect(jsonData1.id).to.be.a(\"number\");\r",
+							"    pm.expect(jsonData1.tags).to.be.an(\"array\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": 0,\n  \"category\": {\n    \"id\": {{$randomInt}},\n    \"name\": \"{{$randomFirstName}}\"\n  },\n  \"name\": \"{{$randomFirstName}}\",\n  \"photoUrls\": [\n    \"{{$randomImageUrl}}\"\n  ],\n  \"tags\": [\n    {\n      \"id\": {{$randomInt}},\n      \"name\": \"{{$randomLastName}}\"\n    }\n  ],\n  \"status\": \"{{statusPet}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{petStoreUrl}}",
+					"host": [
+						"{{petStoreUrl}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GETSINGLEPET",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful GET request\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Content-Type header is application/json\", function () {\r",
+							"        pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');\r",
+							"    });\r",
+							"\r",
+							" var jsonData=JSON.stringify(responseBody);\r",
+							"\r",
+							" var actualPetID=jsonData.substring(9,28);\r",
+							"pm.test(\"JsonBody validation\", ()=> {\r",
+							"   \r",
+							"    pm.expect(pm.collectionVariables.get(\"petID\")).to.eql(actualPetID);\r",
+							" \r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{petStoreUrl}}/{{petID}}",
+					"host": [
+						"{{petStoreUrl}}"
+					],
+					"path": [
+						"{{petID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UPDATE-PET",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var textArray = [\r",
+							"    'available',\r",
+							"    'sold',\r",
+							"    'pending'\r",
+							"];\r",
+							"\r",
+							"var randomNumber = Math.floor(Math.random()*textArray.length);\r",
+							"pm.collectionVariables.set(\"updatedStatusPet\",textArray[randomNumber]);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful GET request\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+							"});\r",
+							"\r",
+							" pm.test(\"Content-Type header is application/json\", function () {\r",
+							"        pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');\r",
+							"        pm.expect(pm.response.headers.get('Access-Control-Allow-Headers')).to.eql('Content-Type, api_key, Authorization');\r",
+							"    });\r",
+							"\r",
+							"\r",
+							"const jsonData = pm.response.json();\r",
+							"    var schema={\r",
+							"  \"$schema\": \"http://json-schema.org/draft-04/schema#\",\r",
+							"  \"type\": \"object\",\r",
+							"  \"properties\": {\r",
+							"    \"id\": {\r",
+							"      \"type\": \"integer\"\r",
+							"    },\r",
+							"    \"category\": {\r",
+							"      \"type\": \"object\",\r",
+							"      \"properties\": {\r",
+							"        \"id\": {\r",
+							"          \"type\": \"integer\"\r",
+							"        },\r",
+							"        \"name\": {\r",
+							"          \"type\": \"string\"\r",
+							"        }\r",
+							"      },\r",
+							"      \"required\": [\r",
+							"        \"id\",\r",
+							"        \"name\"\r",
+							"      ]\r",
+							"    },\r",
+							"    \"name\": {\r",
+							"      \"type\": \"string\"\r",
+							"    },\r",
+							"    \"photoUrls\": {\r",
+							"      \"type\": \"array\",\r",
+							"      \"items\": [\r",
+							"        {\r",
+							"          \"type\": \"string\"\r",
+							"        }\r",
+							"      ]\r",
+							"    },\r",
+							"    \"tags\": {\r",
+							"      \"type\": \"array\",\r",
+							"      \"items\": [\r",
+							"        {\r",
+							"          \"type\": \"object\",\r",
+							"          \"properties\": {\r",
+							"            \"id\": {\r",
+							"              \"type\": \"integer\"\r",
+							"            },\r",
+							"            \"name\": {\r",
+							"              \"type\": \"string\"\r",
+							"            }\r",
+							"          },\r",
+							"          \"required\": [\r",
+							"            \"id\",\r",
+							"            \"name\"\r",
+							"          ]\r",
+							"        }\r",
+							"      ]\r",
+							"    },\r",
+							"    \"status\": {\r",
+							"      \"type\": \"string\"\r",
+							"    }\r",
+							"  },\r",
+							"  \"required\": [\r",
+							"    \"id\",\r",
+							"    \"category\",\r",
+							"    \"name\",\r",
+							"    \"photoUrls\",\r",
+							"    \"tags\",\r",
+							"    \"status\"\r",
+							"  ]\r",
+							"};\r",
+							"\r",
+							"pm.test(\"Schema is valid\",()=>\r",
+							"{\r",
+							"      pm.expect(tv4.validate(jsonData,schema)).to.be.true;\r",
+							"}\r",
+							"\r",
+							");\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"id\": {{petID}},\r\n  \"category\": {\r\n    \"id\": {{$randomInt}},\r\n    \"name\": \"{{$randomFirstName}}\"\r\n  },\r\n  \"name\": \"{{$randomFirstName}}\",\r\n  \"photoUrls\": [\r\n    \"{{$randomImageUrl}}\"\r\n  ],\r\n  \"tags\": [\r\n    {\r\n      \"id\":{{$randomInt}},\r\n      \"name\": \"{{$randomLastName}}\"\r\n    }\r\n  ],\r\n  \"status\": \"{{updatedStatusPet}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{petStoreUrl}}",
+					"host": [
+						"{{petStoreUrl}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FIND-PETS-BY-STATUS",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful GET request\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Content-Type header is application/json\", function () {\r",
+							"        pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');\r",
+							"    });\r",
+							"pm.test(\"Response time is less than 300ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(300);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{petStoreUrl}}/findByStatus?status={{updatedStatusPet}}",
+					"host": [
+						"{{petStoreUrl}}"
+					],
+					"path": [
+						"findByStatus"
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "{{updatedStatusPet}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE-PET",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful GET request\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Your test name\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.code).to.eql(200);\r",
+							"    pm.expect(jsonData.type).to.eql(\"unknown\");\r",
+							"    pm.expect(jsonData.message).to.eql(pm.collectionVariables.get(\"petID\"));\r",
+							"});\r",
+							"\r",
+							"pm.collectionVariables.unset(\"statusPet\");\r",
+							"pm.collectionVariables.unset(\"petID\");\r",
+							"pm.collectionVariables.unset(\"updatedStatusPet\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					},
+					{
+						"key": "api_key",
+						"value": "1321321"
+					}
+				],
+				"url": {
+					"raw": "{{petStoreUrl}}/{{petID}}",
+					"host": [
+						"{{petStoreUrl}}"
+					],
+					"path": [
+						"{{petID}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "collID",
+			"value": ""
+		}
+	]
+}
